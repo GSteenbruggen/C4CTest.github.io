@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PSA Card Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #result {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        #loading {
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PSA Graded Card Information</h1>
+        <input type="text" id="certNumber" placeholder="Enter Certification Number">
+        <button id="fetchButton">Fetch Information</button>
+        <div id="loading">Loading...</div>
+        <div id="result"></div>
+    </div>
+    <script>
+        document.getElementById('fetchButton').addEventListener('click', function() {
+            const certNumber = document.getElementById('certNumber').value;
+            if (certNumber) {
+                fetchCardInfo(certNumber);
+            } else {
+                alert('Please enter a certification number');
+            }
+        });
+
+        async function fetchCardInfo(certNumber) {
+            document.getElementById('loading').style.display = 'block';
+            const apiUrl = `https://api.psacard.com/publicapi/cert/GetByCertNumber/${certNumber}`;
+            const token = 'eIcC_LFk4Yxr6EYBMNZS66_Bw7s3_21KdJkICX52DPUVaS2ylLr1CxQUWWWTko7pLrstSU0EQrdLMbGcuY--EAn0YnhHfyBWER_Vbj8AiFN4CWWJdijdnUO-w1e5A1WwznJIsxhoNEwQTutJ5zAHlPDoc0sf5EO1uXGqq07Os1k8-MkHelK-MZ9U9XzexGjElDDB-reQJCxgei7FsKuBSWDYh4ERHO8osRilV0ZE9vUm6Oi0HALjLeDyv1D-wu8wvmFK6RoyISQtrRv4e4YmBWhX33kKYpNu2lPsKXm2a-7ho1p2';
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `bearer ${token}`
+                    }
+                });
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                displayCardInfo(data.PSACert);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                document.getElementById('result').innerHTML = '<p>Error fetching data. Please try again later.</p>';
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+        
+        function displayCardInfo(card) {
+            const resultDiv = document.getElementById('result');
+            if (card) {
+                console.log(card);
+                resultDiv.innerHTML = `
+                    <h2>Card Information</h2>
+                    <p><strong>Year:</strong> ${card.Year}</p>
+                    <p><strong>Brand:</strong> ${card.Brand}</p>
+                    <p><strong>Variety:</strong> ${card.Variety}</p>
+                    <p><strong>Name:</strong> ${card.Subject}</p>
+                    <p><strong>Grade:</strong> ${card.CardGrade}</p>
+                    <p><strong>Total Population:</strong> ${card.TotalPopulation}</p>
+                    <p><strong>Card Number:</strong> ${card.CardNumber}</p>
+                    <p><strong>Category:</strong> ${card.Category}</p>
+                    <p><strong>Certification Number:</strong> ${card.CertNumber}</p>
+                    <p><strong>Is Dual Certification:</strong> ${card.IsDualCert}</p>
+                    <p><strong>Is PSA/DNA:</strong> ${card.IsPSADNA}</p>
+                    <p><strong>Label Type:</strong> ${card.LabelType}</p>
+                    <p><strong>Population Higher:</strong> ${card.PopulationHigher}</p>
+                    <p><strong>Reverse Bar Code:</strong> ${card.ReverseBarCode}</p>
+                    <p><strong>Spec ID:</strong> ${card.SpecID}</p>
+                    <p><strong>Spec Number:</strong> ${card.SpecNumber}</p>                    
+                    <p><strong>Total Population With Qualifier:</strong> ${card.TotalPopulationWithQualifier}</p>
+                    <p><strong>Formatted:</strong> ${card.Year} ${card.Brand} - ${card.Variety}, ${card.Subject}, ${card.CardGrade}</p>
+                    
+                    
+                `;
+            } else {
+                resultDiv.innerHTML = '<p>No data found for this certification number.</p>';
+            }
+        }
+    </script>
+</body>
+</html>
