@@ -44,12 +44,6 @@
             background-color: #0056b3;
         }
 
-        #qr-reader {
-            width: 100%;
-            max-width: 500px;
-            margin: auto;
-        }
-
         #result {
             margin-top: 20px;
             text-align: left;
@@ -60,20 +54,18 @@
             margin-top: 20px;
         }
     </style>
-    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>PSA Graded Card Information</h1>
-        <input type="text" id="certNumberInput" placeholder="Enter Certification Number">
+        <input type="text" id="certNumber" placeholder="Enter Certification Number">
         <button id="fetchButton">Fetch Information</button>
-        <div id="qr-reader"></div>
         <div id="loading">Loading...</div>
         <div id="result"></div>
     </div>
     <script>
         document.getElementById('fetchButton').addEventListener('click', function() {
-            const certNumber = document.getElementById('certNumberInput').value;
+            const certNumber = document.getElementById('certNumber').value;
             if (certNumber) {
                 fetchCardInfo(certNumber);
             } else {
@@ -83,8 +75,7 @@
 
         async function fetchCardInfo(certNumber) {
             document.getElementById('loading').style.display = 'block';
-            const proxyUrl = 'http://localhost:3000/api';
-            const apiUrl = `${proxyUrl}/publicapi/cert/GetByCertNumber/${certNumber}`;
+            const apiUrl = `https://api.psacard.com/publicapi/cert/GetByCertNumber/${certNumber}`;
             const token = '0Y33RKOgcpvRup9Fu2YTA-SDaQ-rW4wdZwNdLweSeKAnQl1KMOy16K4_WHyjjSy-RU7FTu67dobLsVv6L7_gDNGf_q7MSpJbarWwrSENWY-QWq5AOsa8bfmLWr3nuBdsP31CXzw8eFyLr1ACPudJznskwon1sxP8qDOqK6QRtrrDyfRVHHfZumFjjz0jEUZVDA8LefaZaLfg3Y2Xp99xSTWGqeFcTeqLRm2bg_3qBZ_b6EWXNWFick1WhpEmI5ANMALV_3jEitoKkgq5BFa-segT2AdsV8IMH9AQoaxRnzGhng3Z';
 
             try {
@@ -133,36 +124,6 @@
                 resultDiv.innerHTML = '<p>No data found for this certification number.</p>';
             }
         }
-
-        function onScanSuccess(decodedText) {
-            console.log(`Decoded text: ${decodedText}`);
-            const certNumber = extractCertNumber(decodedText);
-            if (certNumber) {
-                fetchCardInfo(certNumber);
-            } else {
-                alert('Invalid QR code or barcode');
-            }
-        }
-
-        function extractCertNumber(decodedText) {
-            // Implement logic to extract the certification number from the decoded text
-            // Assuming the cert number is the decoded text itself for simplicity
-            return decodedText;
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const qrCodeReader = new Html5Qrcode("qr-reader");
-            qrCodeReader.start(
-                { facingMode: "environment" },
-                {
-                    fps: 10,
-                    qrbox: 250
-                },
-                onScanSuccess
-            ).catch(err => {
-                console.error(`Unable to start the QR code scanner: ${err}`);
-            });
-        });
     </script>
 </body>
 </html>
