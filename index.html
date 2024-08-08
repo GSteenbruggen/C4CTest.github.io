@@ -44,6 +44,12 @@
             background-color: #0056b3;
         }
 
+        #qr-reader {
+            width: 100%;
+            max-width: 500px;
+            margin: auto;
+        }
+
         #result {
             margin-top: 20px;
             text-align: left;
@@ -54,18 +60,20 @@
             margin-top: 20px;
         }
     </style>
+    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>PSA Graded Card Information</h1>
-        <input type="text" id="certNumber" placeholder="Enter Certification Number">
+        <input type="text" id="certNumberInput" placeholder="Enter Certification Number">
         <button id="fetchButton">Fetch Information</button>
+        <div id="qr-reader"></div>
         <div id="loading">Loading...</div>
         <div id="result"></div>
     </div>
     <script>
         document.getElementById('fetchButton').addEventListener('click', function() {
-            const certNumber = document.getElementById('certNumber').value;
+            const certNumber = document.getElementById('certNumberInput').value;
             if (certNumber) {
                 fetchCardInfo(certNumber);
             } else {
@@ -75,8 +83,11 @@
 
         async function fetchCardInfo(certNumber) {
             document.getElementById('loading').style.display = 'block';
-            const apiUrl = `https://api.psacard.com/publicapi/cert/GetByCertNumber/${certNumber}`;
-                      try {
+            const proxyUrl = 'http://localhost:3000/api';
+            const apiUrl = `${proxyUrl}/publicapi/cert/GetByCertNumber/${certNumber}`;
+            const token = '0Y33RKOgcpvRup9Fu2YTA-SDaQ-rW4wdZwNdLweSeKAnQl1KMOy16K4_WHyjjSy-RU7FTu67dobLsVv6L7_gDNGf_q7MSpJbarWwrSENWY-QWq5AOsa8bfmLWr3nuBdsP31CXzw8eFyLr1ACPudJznskwon1sxP8qDOqK6QRtrrDyfRVHHfZumFjjz0jEUZVDA8LefaZaLfg3Y2Xp99xSTWGqeFcTeqLRm2bg_3qBZ_b6EWXNWFick1WhpEmI5ANMALV_3jEitoKkgq5BFa-segT2AdsV8IMH9AQoaxRnzGhng3Z';
+
+            try {
                 const response = await fetch(apiUrl, {
                     method: 'GET',
                     headers: {
@@ -93,38 +104,65 @@
                 document.getElementById('loading').style.display = 'none';
             }
         }
-        
+
         function displayCardInfo(card) {
             const resultDiv = document.getElementById('result');
             if (card) {
-                console.log(card);
                 resultDiv.innerHTML = `
                     <h2>Card Information</h2>
-                    <p><strong>Year:</strong> ${card.Year}</p>
                     <p><strong>Brand:</strong> ${card.Brand}</p>
-                    <p><strong>Variety:</strong> ${card.Variety}</p>
-                    <p><strong>Name:</strong> ${card.Subject}</p>
                     <p><strong>Grade:</strong> ${card.CardGrade}</p>
-                    <p><strong>Total Population:</strong> ${card.TotalPopulation}</p>
                     <p><strong>Card Number:</strong> ${card.CardNumber}</p>
                     <p><strong>Category:</strong> ${card.Category}</p>
                     <p><strong>Certification Number:</strong> ${card.CertNumber}</p>
+                    <p><strong>Grade Description:</strong> ${card.GradeDescription}</p>
                     <p><strong>Is Dual Certification:</strong> ${card.IsDualCert}</p>
                     <p><strong>Is PSA/DNA:</strong> ${card.IsPSADNA}</p>
                     <p><strong>Label Type:</strong> ${card.LabelType}</p>
                     <p><strong>Population Higher:</strong> ${card.PopulationHigher}</p>
                     <p><strong>Reverse Bar Code:</strong> ${card.ReverseBarCode}</p>
                     <p><strong>Spec ID:</strong> ${card.SpecID}</p>
-                    <p><strong>Spec Number:</strong> ${card.SpecNumber}</p>                    
+                    <p><strong>Spec Number:</strong> ${card.SpecNumber}</p>
+                    <p><strong>Subject:</strong> ${card.Subject}</p>
+                    <p><strong>Total Population:</strong> ${card.TotalPopulation}</p>
                     <p><strong>Total Population With Qualifier:</strong> ${card.TotalPopulationWithQualifier}</p>
-                    <p><strong>Formatted:</strong> ${card.Year} ${card.Brand} - ${card.Variety}, ${card.Subject}, ${card.CardGrade}</p>
-                    
-                    
+                    <p><strong>Variety:</strong> ${card.Variety}</p>
+                    <p><strong>Year:</strong> ${card.Year}</p>
                 `;
             } else {
                 resultDiv.innerHTML = '<p>No data found for this certification number.</p>';
             }
         }
+
+        function onScanSuccess(decodedText) {
+            console.log(`Decoded text: ${decodedText}`);
+            const certNumber = extractCertNumber(decodedText);
+            if (certNumber) {
+                fetchCardInfo(certNumber);
+            } else {
+                alert('Invalid QR code or barcode');
+            }
+        }
+
+        function extractCertNumber(decodedText) {
+            // Implement logic to extract the certification number from the decoded text
+            // Assuming the cert number is the decoded text itself for simplicity
+            return decodedText;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const qrCodeReader = new Html5Qrcode("qr-reader");
+            qrCodeReader.start(
+                { facingMode: "environment" },
+                {
+                    fps: 10,
+                    qrbox: 250
+                },
+                onScanSuccess
+            ).catch(err => {
+                console.error(`Unable to start the QR code scanner: ${err}`);
+            });
+        });
     </script>
 </body>
 </html>
