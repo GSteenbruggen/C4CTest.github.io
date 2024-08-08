@@ -76,7 +76,7 @@
         async function fetchCardInfo(certNumber) {
             document.getElementById('loading').style.display = 'block';
             const apiUrl = `https://api.psacard.com/publicapi/cert/GetByCertNumber/${certNumber}`;
-            const token = 'eIcC_LFk4Yxr6EYBMNZS66_Bw7s3_21KdJkICX52DPUVaS2ylLr1CxQUWWWTko7pLrstSU0EQrdLMbGcuY--EAn0YnhHfyBWER_Vbj8AiFN4CWWJdijdnUO-w1e5A1WwznJIsxhoNEwQTutJ5zAHlPDoc0sf5EO1uXGqq07Os1k8-MkHelK-MZ9U9XzexGjElDDB-reQJCxgei7FsKuBSWDYh4ERHO8osRilV0ZE9vUm6Oi0HALjLeDyv1D-wu8wvmFK6RoyISQtrRv4e4YmBWhX33kKYpNu2lPsKXm2a-7ho1p2';
+            const token = '';
 
             try {
                 const response = await fetch(apiUrl, {
